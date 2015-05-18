@@ -1,0 +1,33 @@
+{
+  "name": "rpcinterface",
+  "version": "0.0.1",
+  "description": "Library that facilitates an RPC interface in a webapp or node app",
+  "main": "rpc.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "nodeunit": "0.9.0"
+  },
+  "scripts": {
+    "test": "nodeunit tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fastest963/web-rpclib.git"
+  },
+  "keywords": [
+    "rpc",
+    "jsonrpc",
+    "library",
+    "webapp",
+    "web"
+  ],
+  "author": "James Hartig <fastest963@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "deferred": "^0.7.2",
+    "jquery": "^2.1.4"
+  }
+}
