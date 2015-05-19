@@ -70,6 +70,20 @@ exports.handleTestRequestOptions = function(test) {
     test.done();
 };
 
+exports.callNoParams = function(test) {
+    var rpc = new RPCInterface(),
+        called = false;
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            called = true;
+            dfd.resolve();
+        }
+    });
+    rpc.call('test');
+    test.ok(called);
+    test.done();
+};
+
 exports.preProcessor = function(test) {
     var rpc = new RPCInterface(),
         called = false;
