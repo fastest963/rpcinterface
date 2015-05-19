@@ -84,6 +84,40 @@ exports.callNoParams = function(test) {
     test.done();
 };
 
+exports.callNoParamsOptional = function(test) {
+    var rpc = new RPCInterface(),
+        called = false;
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            called = true;
+            dfd.resolve();
+        },
+        params: {
+            test: {type: 'string', optional: true}
+        }
+    });
+    rpc.call('test');
+    test.ok(called);
+    test.done();
+};
+
+exports.callNoParamsRequired = function(test) {
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            dfd.resolve();
+            test.fail();
+        },
+        params: {
+            test: {type: 'string', optional: false}
+        }
+    });
+    test.throws(function() {
+        rpc.call('test');
+    });
+    test.done();
+};
+
 exports.preProcessor = function(test) {
     var rpc = new RPCInterface(),
         called = false;

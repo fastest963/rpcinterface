@@ -67,7 +67,7 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         if (methodDetail.params !== undefined) {
             for (k in methodDetail.params) {
                 v = methodDetail.params[k];
-                t = typeof params[k];
+                t = typeof parameters[k];
                 if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
                     throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
                 }
