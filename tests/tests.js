@@ -1,4 +1,5 @@
-var RPCInterface = require('../node-index.js');
+var Deferred = require('deferred'),
+    RPCInterface = require('../node-index.js');
 
 exports.createRPC = function(test) {
     var rpc = new RPCInterface();
@@ -19,6 +20,36 @@ exports.addMethodOptions = function(test) {
         handler: function(){}
     });
     test.ok(true);
+    test.done();
+};
+
+exports.addMethodInvalidParams = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    test.throws(function() {
+        rpc.addMethod('test', {
+            handler: function() {},
+            params: {
+                test: null
+            }
+        });
+    });
+    test.done();
+};
+
+exports.addMethodStringParam = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            test.equal(typeof params.test, 'string');
+            dfd.resolve();
+        },
+        params: {
+            test: 'string'
+        }
+    });
+    rpc.call('test', {test: 'test'});
     test.done();
 };
 
@@ -131,5 +162,54 @@ exports.preProcessor = function(test) {
     });
     rpc.call('test', {test: 'test'});
     test.ok(called);
+    test.done();
+};
+
+exports.preProcessorResolved = function(test) {
+    var rpc = new RPCInterface(),
+        called = false;
+    rpc.addMethod('test', function() {
+        called = true;
+    });
+    rpc.setPreProcessor(function(method, params, dfd) {
+        dfd.resolve();
+    });
+    rpc.call('test', {test: 'test'});
+    test.equal(called, false);
+    test.done();
+};
+
+exports.preProcessorDeferred = function(test) {
+    var rpc = new RPCInterface(),
+        dfd = new Deferred(),
+        called = false;
+    rpc.addMethod('test', function(params, dfd) {
+        called = true;
+        dfd.resolve();
+    });
+    rpc.setPreProcessor(function() {
+        return dfd.promise;
+    });
+    rpc.call('test', {test: 'test'});
+    test.equal(called, false);
+    dfd.resolve();
+    test.equal(called, true);
+    test.done();
+};
+
+exports.preProcessorResolvedDeferred = function(test) {
+    var rpc = new RPCInterface(),
+        dfd = new Deferred(),
+        called = false;
+    rpc.addMethod('test', function() {
+        called = true;
+    });
+    rpc.setPreProcessor(function(method, params, dfd) {
+        dfd.resolve();
+        return dfd.promise;
+    });
+    rpc.call('test', {test: 'test'});
+    dfd.resolve();
+    test.equal(called, false);
     test.done();
 };

@@ -1,3 +1,5 @@
+var _EMPTY_OBJECT_ = {};
+
 module.exports = function(createDeferred, deferredPromise, deferredPending) {
     function RPCInterface() {
         this.methods = {};
@@ -11,7 +13,7 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
     RPCInterface.prototype.addMethod = function(name, params, handler) {
         var obj = null,
             internal = false,
-            description, errors;
+            description, errors, n;
         if (arguments.length === 2) {
             if (typeof params === 'function') {
                 handler = params;
@@ -27,6 +29,23 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         }
         if (typeof handler !== 'function') {
             throw new TypeError('Invalid handler method sent to addMethod for ' + name);
+        }
+        if (typeof params !== 'object' || params === null) {
+            params = _EMPTY_OBJECT_;
+        } else {
+            for (n in params) {
+                if (!params.hasOwnProperty(n)) {
+                    continue;
+                }
+                if (typeof params[n] === 'string') {
+                    params[n] = {
+                        type: params[n],
+                        optional: false
+                    };
+                } else if (!params[n]) {
+                    throw new TypeError('Invalid param sent to addMethod for param ' + n);
+                }
+            }
         }
         this.methods[name] = {
             params: params,
@@ -51,7 +70,7 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
     RPCInterface.prototype.call = function(method, params) {
         var parameters = params || {},
             methodDetail = null,
-            dfd = null,
+            dfd, preDfd,
             k, t, v;
         if (typeof method !== 'string') {
             throw new TypeError('Invalid method passed to rpcInterface.call');
@@ -64,20 +83,27 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         }
 
         methodDetail = this.methods[method];
-        if (methodDetail.params !== undefined) {
-            for (k in methodDetail.params) {
-                v = methodDetail.params[k];
-                t = typeof parameters[k];
-                if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
-                    throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
-                }
+        for (k in methodDetail.params) {
+            v = methodDetail.params[k];
+            t = typeof parameters[k];
+            if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
+                throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
             }
         }
 
         dfd = createDeferred();
 
         if (this.preProcessor !== null && methodDetail.internal !== true) {
-            this.preProcessor(method, parameters, dfd);
+            preDfd = this.preProcessor(method, parameters, dfd);
+            if (preDfd && typeof preDfd.then === 'function') {
+                preDfd.then(function() {
+                    if (deferredPending(dfd)) {
+                        return;
+                    }
+                    methodDetail.handler(parameters, dfd);
+                });
+                return deferredPromise(dfd);
+            }
             //check if the preprocessor already resolved the dfd
             if (deferredPending(dfd)) {
                 return deferredPromise(dfd);
