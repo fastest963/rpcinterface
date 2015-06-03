@@ -1,4 +1,16 @@
-var _EMPTY_OBJECT_ = {};
+var _EMPTY_OBJECT_ = {},
+    isArray;
+
+if (Array.isArray) {
+    isArray = function(arr) {
+        return Array.isArray(arr);
+    };
+} else {
+    //from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray#Polyfill
+    isArray = function(arr) {
+        return Object.prototype.toString.call(arr) === '[object Array]';
+    };
+}
 
 module.exports = function(createDeferred, deferredPromise, deferredPending) {
     function RPCInterface() {
@@ -86,6 +98,9 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         for (k in methodDetail.params) {
             v = methodDetail.params[k];
             t = typeof parameters[k];
+            if (v.type === 'array' && t === 'object' && Array.isArray(parameters[k])) {
+                t = 'array';
+            }
             if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
                 throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
             }

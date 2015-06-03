@@ -83,22 +83,22 @@ exports.handleTestRequestMissing = function(test) {
 };
 
 exports.handleTestRequestOptions = function(test) {
-    var rpc = new RPCInterface(),
-        called = false;
+    test.expect(3);
+    var rpc = new RPCInterface();
     rpc.addMethod('test', {
         handler: function(params, dfd) {
             test.equal(typeof params, 'object');
             test.equal(params.test, 'test');
-            called = true;
-            dfd.resolve();
+            dfd.resolve({success: true});
         },
         params: {
             test: {type: 'string', optional: false}
         }
     });
-    rpc.call('test', {test: 'test'});
-    test.ok(called);
-    test.done();
+    rpc.call('test', {test: 'test'}).then(function(result) {
+        test.ok(result.success);
+        test.done();
+    });
 };
 
 exports.callNoParams = function(test) {
@@ -211,5 +211,39 @@ exports.preProcessorResolvedDeferred = function(test) {
     rpc.call('test', {test: 'test'});
     dfd.resolve();
     test.equal(called, false);
+    test.done();
+};
+
+exports.callTestArray = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            dfd.resolve({success: true});
+        },
+        params: {
+            test: {type: 'array', optional: false}
+        }
+    });
+    rpc.call('test', {test: []}).then(function(result) {
+        test.ok(result.success);
+        test.done();
+    });
+};
+
+exports.callTestNotArray = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function() {
+            test.fail();
+        },
+        params: {
+            test: {type: 'array', optional: false}
+        }
+    });
+    test.throws(function() {
+        rpc.call('test', {test: {}});
+    });
     test.done();
 };
