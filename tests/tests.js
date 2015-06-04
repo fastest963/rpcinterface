@@ -247,3 +247,37 @@ exports.callTestNotArray = function(test) {
     });
     test.done();
 };
+
+exports.callTestResolveNull = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            dfd.resolve(null);
+        },
+        params: {
+            test: {type: 'array', optional: false}
+        }
+    });
+    rpc.call('test', {test: []}).then(function(result) {
+        test.strictEqual(result, null);
+        test.done();
+    });
+};
+
+exports.callTestResolveUndefined = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            dfd.resolve();
+        },
+        params: {
+            test: {type: 'array', optional: false}
+        }
+    });
+    rpc.call('test', {test: []}).then(function(result) {
+        test.strictEqual(result, undefined);
+        test.done();
+    });
+};
