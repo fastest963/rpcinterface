@@ -39,7 +39,7 @@ Sets the pre-processor, which is called before the handler but after the request
 validated. The `func` is sent (method, params, dfd). `method` is the string method
 name being called and `params` is the parameters object sent by the caller.
 
-### rpc.call(method, params) ###
+### rpc.call(method[, params]) ###
 
 Calls a method added by `addMethod` and sends along the passed params. Returns a
 deferred. Throws if `params` are invalid/missing for the method being called or if
