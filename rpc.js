@@ -110,8 +110,8 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
 
         if (this.preProcessor !== null && methodDetail.internal !== true) {
             preDfd = this.preProcessor(method, parameters, dfd);
-            if (preDfd && typeof preDfd.then === 'function') {
-                preDfd.then(function() {
+            if (preDfd && typeof preDfd.done === 'function') {
+                 preDfd[typeof dfd.done === 'function' ? 'done' : 'then'](function() {
                     if (deferredPending(dfd)) {
                         return;
                     }
