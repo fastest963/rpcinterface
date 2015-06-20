@@ -68,6 +68,12 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         };
     };
 
+    RPCInterface.prototype.removeMethod = function(name) {
+        if (this.methods.hasOwnProperty(name)) {
+            delete this.methods[name];
+        }
+    };
+
     RPCInterface.prototype.setPreProcessor = function(func) {
         if (func === null) {
             this.preProcessor = null;

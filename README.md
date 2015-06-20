@@ -18,7 +18,7 @@ Creates a new RPCInterface instance. Should be done at application start up.
 ### rpc.addMethod(name, handler) ###
 ### rpc.addMethod(name, options) ###
 
-Adds a new handler for a method name. `options` should be an object that has
+Adds a new handler for method `name`. `options` should be an object that has
 `handler` and `params` keys. `handler` is a callback that is called with
 (parameters, deferred) when a new call is made for this method name. If
 `params` are not defined then no parameter checking is done.
@@ -32,6 +32,10 @@ Adds a new handler for a method name. `options` should be an object that has
     phone: {type: 'number', optional: true}
 }
 ```
+
+### rpc.removeMethod(name) ###
+
+Removes the handler for method `name`.
 
 ### rpc.setPreProcessor(func) ###
 

@@ -1,5 +1,8 @@
 ## Changelog ##
 
+### 0.1.1 ###
+* Added `removeMethod`
+
 ### 0.1.0 ###
 * Exceptions throw in handler will now correctly throw if using promise in preProcessor
 

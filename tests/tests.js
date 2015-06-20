@@ -23,6 +23,7 @@ exports.addMethodOptions = function(test) {
     test.done();
 };
 
+
 exports.addMethodInvalidParams = function(test) {
     test.expect(1);
     var rpc = new RPCInterface();
@@ -50,6 +51,19 @@ exports.addMethodStringParam = function(test) {
         }
     });
     rpc.call('test', {test: 'test'});
+    test.done();
+};
+
+exports.removeMethod = function(test) {
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', function(params, dfd) {
+        dfd.resolve();
+    });
+    rpc.call('test');
+    rpc.removeMethod('test');
+    test.throws(function() {
+        rpc.call('test', {});
+    });
     test.done();
 };
 
