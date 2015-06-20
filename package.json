@@ -1,6 +1,6 @@
 {
   "name": "rpcinterface",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Library that facilitates an RPC interface in a webapp or node app",
   "main": "node-index.js",
   "browser": "browser-index.js",
