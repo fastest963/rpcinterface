@@ -93,7 +93,7 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         if (typeof method !== 'string') {
             throw new TypeError('Invalid method passed to rpcInterface.call');
         }
-        if (typeof params !== 'object' && params !== undefined) {
+        if (typeof parameters !== 'object') {
             throw new TypeError('Invalid params passed to rpcInterface.call');
         }
         if (!this.methods.hasOwnProperty(method)) {
