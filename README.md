@@ -1,6 +1,7 @@
 # rpcinterface #
 
-Build a rpc interface in your webapp or node app.
+Build a rpc interface in your webapp or node app. Requires jQuery for promises on
+the web (via browserify).
 
 ### Usage (with browserify/node) ###
 
