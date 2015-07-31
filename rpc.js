@@ -88,8 +88,11 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
     RPCInterface.prototype.call = function(method, params) {
         var parameters = params || {},
             methodDetail = null,
+            paramsIsArray = isArray(parameters),
+            paramsToSend = parameters,
+            i = 0,
             dfd, preDfd,
-            k, t, v;
+            k, pk, t, v, fixedParams;
         if (typeof method !== 'string') {
             throw new TypeError('Invalid method passed to rpcInterface.call');
         }
@@ -100,28 +103,33 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
             throw new TypeError('Method passed to rpcInterface.call not found. Method must be added with addMethod first');
         }
 
+        if (paramsIsArray) {
+            paramsToSend = {};
+        }
         methodDetail = this.methods[method];
         for (k in methodDetail.params) {
             v = methodDetail.params[k];
-            t = typeof parameters[k];
-            if (v.type === 'array' && t === 'object' && Array.isArray(parameters[k])) {
+            pk = paramsIsArray ? i++ : k;
+            t = typeof parameters[pk];
+            if (v.type === 'array' && t === 'object' && isArray(parameters[pk])) {
                 t = 'array';
             }
             if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
                 throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
             }
+            paramsToSend[k] = parameters[pk];
         }
 
         dfd = createDeferred();
 
         if (this.preProcessor !== null && methodDetail.internal !== true) {
-            preDfd = this.preProcessor(method, parameters, dfd);
+            preDfd = this.preProcessor(method, paramsToSend, dfd);
             if (preDfd && typeof preDfd.done === 'function') {
                  preDfd[typeof dfd.done === 'function' ? 'done' : 'then'](function() {
                     if (deferredPending(dfd)) {
                         return;
                     }
-                    methodDetail.handler(parameters, dfd);
+                    methodDetail.handler(paramsToSend, dfd);
                 });
                 return deferredPromise(dfd);
             }
@@ -130,7 +138,7 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
                 return deferredPromise(dfd);
             }
         }
-        methodDetail.handler(parameters, dfd);
+        methodDetail.handler(paramsToSend, dfd);
         return deferredPromise(dfd);
     };
 

@@ -96,6 +96,53 @@ exports.handleTestRequestMissing = function(test) {
     test.done();
 };
 
+exports.handleTestRequestArray = function(test) {
+    var rpc = new RPCInterface(),
+        called = false;
+    rpc.addMethod('test', {
+        test: {type: 'string', optional: false}
+    }, function(params, dfd) {
+        test.equal(typeof params, 'object');
+        test.equal(params.test, 'test1');
+        called = true;
+        dfd.resolve();
+    });
+    rpc.call('test', ['test1']);
+    test.ok(called);
+    test.done();
+};
+
+exports.handleTestRequestMultipleArray = function(test) {
+    var rpc = new RPCInterface(),
+        called = false;
+    rpc.addMethod('test', {
+        test: 'string',
+        test2: 'string'
+    }, function(params, dfd) {
+        test.equal(typeof params, 'object');
+        test.equal(params.test, 'test1');
+        test.equal(params.test2, 'test2');
+        called = true;
+        dfd.resolve();
+    });
+    rpc.call('test', ['test1', 'test2']);
+    test.ok(called);
+    test.done();
+};
+
+exports.handleTestRequestMissingArray = function(test) {
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        test: {type: 'string', optional: false}
+    }, function() {
+        test.fail();
+    });
+    test.throws(function() {
+        rpc.call('test', []);
+    });
+    test.done();
+};
+
 exports.handleTestRequestOptions = function(test) {
     test.expect(3);
     var rpc = new RPCInterface();

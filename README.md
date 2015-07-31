@@ -48,4 +48,5 @@ name being called and `params` is the parameters object sent by the caller.
 
 Calls a method added by `addMethod` and sends along the passed params. Returns a
 deferred. Throws if `params` are invalid/missing for the method being called or if
-the method wasn't added.
+the method wasn't added. `params` can also be an array where the order of the values
+is based on the defined order when `addMethod` was called.
