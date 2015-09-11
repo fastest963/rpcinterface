@@ -1,5 +1,11 @@
 ## Changelog ##
 
+### 0.2.0 ###
+* Added explicit handling of null params when adding new method
+
+### 0.1.2 ###
+* Allow params to be an array in call
+
 ### 0.1.1 ###
 * Added `removeMethod`
 

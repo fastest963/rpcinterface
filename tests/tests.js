@@ -54,6 +54,20 @@ exports.addMethodStringParam = function(test) {
     test.done();
 };
 
+exports.addMethodNullParams = function(test) {
+    test.expect(1);
+    var rpc = new RPCInterface();
+    rpc.addMethod('test', {
+        handler: function(params, dfd) {
+            test.equal(Object.keys(params).length, 0);
+            dfd.resolve();
+        },
+        params: null
+    });
+    rpc.call('test', {test: 'test'});
+    test.done();
+};
+
 exports.removeMethod = function(test) {
     var rpc = new RPCInterface();
     rpc.addMethod('test', function(params, dfd) {

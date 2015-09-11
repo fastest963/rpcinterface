@@ -22,9 +22,10 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         });
     }
 
-    RPCInterface.prototype.addMethod = function(name, params, handler) {
+    RPCInterface.prototype.addMethod = function(name, parameters, handler) {
         var obj = null,
             internal = false,
+            params = parameters,
             description, errors, n;
         if (arguments.length === 2) {
             if (typeof params === 'function') {
@@ -42,8 +43,10 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
         if (typeof handler !== 'function') {
             throw new TypeError('Invalid handler method sent to addMethod for ' + name);
         }
-        if (typeof params !== 'object' || params === null) {
+        if (typeof params !== 'object') {
             params = _EMPTY_OBJECT_;
+        } else if (params === null) {
+            //ignore null and let it stay null
         } else {
             for (n in params) {
                 if (!params.hasOwnProperty(n)) {
@@ -92,7 +95,7 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
             paramsToSend = parameters,
             i = 0,
             dfd, preDfd,
-            k, pk, t, v, fixedParams;
+            k, pk, t, v;
         if (typeof method !== 'string') {
             throw new TypeError('Invalid method passed to rpcInterface.call');
         }
@@ -107,17 +110,25 @@ module.exports = function(createDeferred, deferredPromise, deferredPending) {
             paramsToSend = {};
         }
         methodDetail = this.methods[method];
-        for (k in methodDetail.params) {
-            v = methodDetail.params[k];
-            pk = paramsIsArray ? i++ : k;
-            t = typeof parameters[pk];
-            if (v.type === 'array' && t === 'object' && isArray(parameters[pk])) {
-                t = 'array';
+        if (methodDetail.params === null) {
+            paramsToSend = {};
+        } else {
+            for (k in methodDetail.params) {
+                if (!methodDetail.params.hasOwnProperty(k)) {
+                    continue;
+                }
+                v = methodDetail.params[k];
+                pk = paramsIsArray ? i++ : k;
+                t = typeof parameters[pk];
+                if (v.type === 'array' && t === 'object' && isArray(parameters[pk])) {
+                    t = 'array';
+                }
+                if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
+                    throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
+                }
+                //copy over in the event that parameters is an array
+                paramsToSend[k] = parameters[pk];
             }
-            if (v.type !== '*' && t !== v.type && (!v.optional || t !== 'undefined')) {
-                throw new TypeError('Invalid/missing param ' + k + ' sent to ' + method);
-            }
-            paramsToSend[k] = parameters[pk];
         }
 
         dfd = createDeferred();

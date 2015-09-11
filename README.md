@@ -34,6 +34,12 @@ Adds a new handler for method `name`. `options` should be an object that has
 }
 ```
 
+If `params` is `null` (rather than an object or undefined) then the parameters
+object sent to the `handler` will be an empty object, guaranteed. Normally the
+passed object is validated but passed through as originally sent. This could
+cause issues if you're expecting an empty object since your method accepts no
+parameters but the caller sent extraneous parameters.
+
 ### rpc.removeMethod(name) ###
 
 Removes the handler for method `name`.
